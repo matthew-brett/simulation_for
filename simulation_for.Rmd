@@ -1,0 +1,322 @@
+---
+title: "Simulation"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+# Three girls
+
+## Simulating one family with random numbers
+
+A single random number:
+
+```{r}
+runif(1)
+```
+
+Look for the R help on `runif`.  `runif` makes Random UNIForm numbers; random numbers from the [uniform distribution](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)).  Uniform means that all numbers between 0 and 1 are equally likely.
+
+We start by simulating a coin toss.
+
+```{r}
+runif(1) < 0.5
+```
+
+`runif` needs a single argument: the number of random numbers we want.
+
+Here we get a vector of four random numbers:
+
+```{r}
+runif(4)
+```
+
+We use our *conditional expression* skills to simulate four coin tosses:
+
+```{r}
+runif(4) < 0.5
+```
+
+Do the same thing again, but keep the result:
+
+```{r}
+coin_tosses <- runif(4) < 0.5
+coin_tosses
+```
+
+We would like to know the number of `TRUE` values.
+
+It turns out that R, like many other languages, thinks of `TRUE` as being equal to 1, and `FALSE` as equal to 0:
+
+```{r}
+TRUE + TRUE
+```
+
+```{r}
+FALSE + FALSE
+```
+
+```{r}
+TRUE + FALSE
+```
+
+This means that we can use the `sum` function on our vector of coin tosses:
+
+```{r}
+coin_tosses
+```
+
+```{r}
+sum(coin_tosses)
+```
+
+Make another vector to check again that we get the right answer from `sum`:
+
+```{r}
+coin_tosses_2 <- runif(4) < 0.5
+coin_tosses_2
+```
+
+```{r}
+sum(coin_tosses_2)
+```
+
+## Simulating five families
+
+So far we have simulated four coin tosses.  Each `TRUE` value represents a girl.  This represents one family.
+
+What if we want to do this five times, to simulate five families.  We could do this a very long and boring way.
+
+First I make a vector of all zero, to store the counts:
+
+```{r}
+counts <- numeric(5)
+counts
+```
+
+Then I trudge through making five families one after the other:
+
+```{r}
+coin_tosses_1 <- runif(4) < 0.5
+counts[1] <- sum(coin_tosses_1)
+coin_tosses_2 <- runif(4) < 0.5
+counts[2] <- sum(coin_tosses_2)
+coin_tosses_3 <- runif(4) < 0.5
+counts[3] <- sum(coin_tosses_3)
+coin_tosses_4 <- runif(4) < 0.5
+counts[4] <- sum(coin_tosses_4)
+coin_tosses_5 <- runif(4) < 0.5
+counts[5] <- sum(coin_tosses_5)
+```
+
+I have one count for each simulated family:
+
+```{r}
+counts
+```
+
+How many of these are equal to three?  I can use my vector skills again:
+
+```{r}
+counts_equal_3 <- counts == 3
+counts_equal_3
+```
+
+Now I can count how many are equal to three:
+
+```{r}
+sum(counts_equal_3)
+```
+
+In fact I can do this all in one go, by putting the `counts == 3` expression inside the parentheses:
+
+```{r}
+sum(counts == 3)
+```
+
+R first finds the stuff between the parentheses.  It *evaluates* the stuff between parentheses, to get the vector of `TRUE` and `FALSE`.  It passes the result to `sum`.
+
+The big chunk simulating four families looks very repetitive.  What happens if I need to do 20 families?  Or 1000?  I can't do it like that.
+
+We need a way to do the same thing multiple times.  In our case, we need a way to make a family, and count the number of girls, many times.  To do this, we will use a `for` loop.
+
+## print
+
+To explain `for` loops, we will have use of another function in R: `print`.
+
+`print` is a simple function that takes an argument, and displays that argument in the notebook or console.
+
+```{r}
+print(10)
+```
+
+```{r}
+print('Hello')
+```
+
+You will soon see why we need this, instead of our usual:
+
+```{r}
+10
+```
+
+or
+
+```{r}
+'Hello'
+```
+
+## Repeating things many times with `for` loops
+
+A `for` loop allows us to repeat the same thing many times.
+
+Here is an example:
+
+```{r}
+for (index in 1:5) {
+  print(index)
+}
+```
+
+Read this as "For every value 1 through 5 - put the value into the variable
+`index`, then print the value of `index`".
+
+The `for` loop starts like this: `for (variable in vector)`.  `variable` can be any variable name:
+
+```{r}
+for (funky_chicken in 1:5) {
+  print(funky_chicken)
+}
+```
+
+`vector` can be any vector of values:
+
+```{r}
+my_vector <- c(3, 1, 4, 1)
+my_vector
+```
+
+```{r}
+for (funky_chicken in my_vector) {
+  print(funky_chicken)
+}
+```
+
+Read `for (funky_chicken in my_vector)` as "For each value in 'my_vector', put the value into variable `funky_chicken` and then do ... " something.
+
+The "something" is the stuff between the curly braces `{}`.  This is called the *loop body*.  It's the stuff that happens once for each value in `my_vector`.  Consider this `for` loop again:
+
+```{r}
+for (funky_chicken in my_vector) {
+  print(funky_chicken)
+}
+```
+
+The *body* of the loop is stuff between the curly braces. In this case it is just the line `print(funky_chicken)`.
+
+Put another way, the `for` loop above does exactly the same thing as:
+
+```{r}
+funky_chicken <- my_vector[1]
+# The stuff in the body of the for loop
+print(funky_chicken)
+funky_chicken <- my_vector[2]
+# The stuff in the body of the for loop
+print(funky_chicken)
+funky_chicken <- my_vector[3]
+# The stuff in the body of the for loop
+print(funky_chicken)
+funky_chicken <- my_vector[4]
+# The stuff in the body of the for loop
+print(funky_chicken)
+funky_chicken <- my_vector[5]
+# The stuff in the body of the for loop
+print(funky_chicken)
+```
+
+You might agree that the `for` loop version looks a bit neater.  Even if you don't, you can imagine that we can't do the version above if we have too many elements in our vector.
+
+With that introduction, we return to our ugly version of simulating the five families:
+
+```{r}
+# Make a vector 5 long with all zeros
+counts <- numeric(5)
+# Make five families, and count the number of girls
+coin_tosses_1 <- runif(4) < 0.5
+counts[1] <- sum(coin_tosses_1)
+coin_tosses_2 <- runif(4) < 0.5
+counts[2] <- sum(coin_tosses_2)
+coin_tosses_3 <- runif(4) < 0.5
+counts[3] <- sum(coin_tosses_3)
+coin_tosses_4 <- runif(4) < 0.5
+counts[4] <- sum(coin_tosses_4)
+coin_tosses_5 <- runif(4) < 0.5
+counts[5] <- sum(coin_tosses_5)
+# Show the counts
+counts
+```
+
+We rewrite with a `for` loop:
+
+```{r}
+counts <- numeric(5)
+for (i in 1:5) {
+  coin_tosses <- runif(4) < 0.5
+  counts[i] <- sum(coin_tosses)
+}
+counts
+```
+
+The trick here is that we can do this as many times as we like.  Let's start with 50 times:
+
+```{r}
+counts <- numeric(50)
+for (i in 1:50) {
+  coin_tosses <- runif(4) < 0.5
+  counts[i] <- sum(coin_tosses)
+}
+counts
+```
+
+Now 10000 times:
+
+```{r}
+n_repeats <- 10000
+counts <- numeric(n_repeats)
+for (i in 1:n_repeats) {
+  coin_tosses <- runif(4) < 0.5
+  counts[i] <- sum(coin_tosses)
+}
+# Show the first 10
+head(counts, 10)
+```
+
+How many times do we see a count of exactly 3?
+
+```{r}
+number_of_threes <- sum(counts == 3)
+number_of_threes
+```
+
+What proportion is this?
+
+```{r}
+number_of_threes / n_repeats
+```
+
+## Summary
+
+If you want to repeat something `n` times:
+
+```{r}
+# For example
+n <- 10
+```
+
+Then:
+
+```{r}
+for (i in 1:n) {
+  # The thing you want to repeat
+}
+```
